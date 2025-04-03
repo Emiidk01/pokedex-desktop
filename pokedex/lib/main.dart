@@ -27,7 +27,7 @@ class PokedexApp extends StatelessWidget {
         ), // Genera una paleta de colores a partir de un color base (Colors.red).
         useMaterial3: true,
       ),
-      home: const ContentView(), // Define la pantalla principal
+      home: const PokemonListView(), // Define la pantalla principal
     );
   }
 }

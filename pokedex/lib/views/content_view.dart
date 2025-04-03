@@ -1,27 +1,73 @@
 import 'package:cached_network_image/cached_network_image.dart'; // Para cargar imágenes de internet fácilmente
 import 'package:flutter/material.dart'; // Incluye los widgets de flutter
 import 'package:pokedex/models/pokemonBase.dart';
+import 'package:pokedex/repositories/pokemon_repository.dart';
 
 import '../models/pokedex.dart'; // Incluye tu archivo de modelos que creamos previamente
 
-class ContentView extends StatefulWidget {
-  final List<PokemonBase>?
-  pokemonList; // Crear el arreglo que contiene la lista de pokemon
-
-  const ContentView({Key? key, this.pokemonList}) : super(key: key);
+class PokemonListView extends StatefulWidget {
+  const PokemonListView({Key? key}) : super(key: key);
 
   @override
-  _ContentViewState createState() => _ContentViewState();
+  _PokemonListViewState createState() => _PokemonListViewState();
 }
 
-class _ContentViewState extends State<ContentView> {
-  late List<PokemonBase> _pokemonList;
+class _PokemonListViewState extends State<PokemonListView> {
+  final List<PokemonBase> _pokemonList = [];
+  final PokemonRepository _repository = PokemonRepository();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Si recibimos una lista, la usamos; de lo contrario, creamos datos de prueba
-    _pokemonList = widget.pokemonList ?? _createTestData();
+    _loadPokemonList();
+  }
+
+  Future<void> _loadPokemonList() async {
+    try {
+      final pokedex = await _repository.getPokedexData(
+        20,
+      ); // Limitamos a 20 para eficiencia
+
+      if (pokedex != null) {
+        final List<PokemonBase> tempList = [];
+
+        for (var pokemon in pokedex.results) {
+          // Extraer el número del Pokémon de la URL
+          final urlParts = pokemon.url.split('/');
+          final pokemonNumber = int.parse(urlParts[urlParts.length - 2]);
+
+          // Obtener información detallada (incluidas imágenes)
+          final profile = await _repository.getPokemonProfileData(
+            pokemonNumber,
+          );
+
+          // Crear objeto PokemonBase con todos los datos
+          final pokemonBase = PokemonBase(
+            id: pokemonNumber,
+            pokemon: pokemon,
+            profile: profile,
+          );
+
+          // Añadir a la lista temporal
+          tempList.add(pokemonBase);
+
+          // Actualizar el estado para mostrar progresivamente los Pokémon cargados
+          setState(() {
+            _pokemonList.add(pokemonBase);
+          });
+        }
+
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error al cargar la lista de Pokémon: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   List<PokemonBase> _createTestData() {
@@ -65,27 +111,48 @@ class _ContentViewState extends State<ContentView> {
         backgroundColor: Colors.red,
         foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        itemCount:
-            _pokemonList
-                .length, // Agregamos el tamaño de nuestro _pokemonList para la cantidad de items
-        itemBuilder: (context, index) {
-          final pokemonBase = _pokemonList[index];
-          return ListTile(
-            leading: CachedNetworkImage(
-              imageUrl: pokemonBase.profile.sprites.frontDefault,
-              placeholder: (context, url) => const CircularProgressIndicator(),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              width: 80,
-              height: 80,
-            ),
-            title: Text(
-              pokemonBase.pokemon.name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          );
-        },
-      ),
+      body:
+          _isLoading && _pokemonList.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                itemCount:
+                    _pokemonList
+                        .length, // Agregamos el tamaño de nuestro _pokemonList para la cantidad de items
+                itemBuilder: (context, index) {
+                  final pokemonBase = _pokemonList[index];
+                  return ListTile(a
+                    leading:
+                        pokemonBase.profile?.sprites.frontDefault != null
+                            ? CachedNetworkImage(
+                              imageUrl:
+                                  pokemonBase.profile!.sprites.frontDefault,
+                              placeholder:
+                                  (context, url) => const SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                              errorWidget:
+                                  (context, url, error) =>
+                                      const Icon(Icons.error),
+                              width: 48,
+                              height: 48,
+                            )
+                            : Container(
+                              width: 48,
+                              height: 48,
+                              color: Colors.grey[300],
+                            ),
+                    title: Text(
+                      pokemonBase.pokemon.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

@@ -120,7 +120,7 @@ class _PokemonListViewState extends State<PokemonListView> {
                         .length, // Agregamos el tamaño de nuestro _pokemonList para la cantidad de items
                 itemBuilder: (context, index) {
                   final pokemonBase = _pokemonList[index];
-                  return ListTile(a
+                  return ListTile(
                     leading:
                         pokemonBase.profile?.sprites.frontDefault != null
                             ? CachedNetworkImage(

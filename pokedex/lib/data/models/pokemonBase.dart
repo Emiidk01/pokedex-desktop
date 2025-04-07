@@ -1,4 +1,4 @@
-import 'package:pokedex/models/pokedex.dart';
+import 'package:pokedex/data/models/pokedex.dart';
 
 class PokemonBase {
   final int id;

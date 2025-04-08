@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:pokedex/data/models/pokemonBase.dart';
 import 'package:pokedex/domain/get_pokemon_info_usecase.dart';
 import 'package:pokedex/domain/get_pokemon_list_usecase.dart';
-import '../data/models/pokedex.dart';
-import '../data/repositories/pokemon_repository.dart';
+import '../../data/models/pokedex.dart';
+import '../../data/repositories/pokemon_repository.dart';
 
 class PokemonListViewModel extends ChangeNotifier {
   final PokemonRepository repository = PokemonRepository();

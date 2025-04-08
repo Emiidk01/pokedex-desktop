@@ -4,8 +4,9 @@ import 'package:pokedex/data/models/pokemonBase.dart';
 import 'package:pokedex/data/repositories/pokemon_repository.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/pokemon_viewmodel.dart';
+import 'package:pokedex/framework/views/pokemon_detail_screen.dart';
 
-import '../data/models/pokedex.dart'; // Incluye tu archivo de modelos que creamos previamente
+import '../../data/models/pokedex.dart'; // Incluye tu archivo de modelos que creamos previamente
 
 class PokemonListView extends StatefulWidget {
   const PokemonListView({Key? key}) : super(key: key);
@@ -114,7 +115,14 @@ class _PokemonListViewState extends State<PokemonListView> {
                   ),
                 ),
                 onTap: () {
-                  // Navegación para una futura vista de detalle
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) =>
+                              PokemonDetailScreen(pokemon: pokemonBase),
+                    ),
+                  );
                 },
               );
             },

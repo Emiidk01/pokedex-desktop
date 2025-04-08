@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/viewmodels/pokemon_viewmodel.dart';
-import 'package:pokedex/views/content_view.dart';
+import 'package:pokedex/framework/viewmodels/login_viewmodel.dart';
+import 'package:pokedex/framework/viewmodels/pokemon_viewmodel.dart';
+import 'package:pokedex/framework/viewmodels/profile_viewmodel.dart';
+import 'package:pokedex/framework/views/content_view.dart';
 import 'package:provider/provider.dart';
+import 'framework/navigation/app_router.dart';
 
 void main() {
   runApp(
@@ -17,17 +20,28 @@ class PokedexApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Recibe un BuildContext, que contiene información sobre el árbol de widgets.
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PokemonListViewModel()),
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
       ],
       child: MaterialApp(
-        title: 'Pokedex App',
+        // Define nuestro entorno visual
+        title:
+            'Pokedex', // Define el título de la aplicación, que aparece en la barra de tareas en algunas plataformas.
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+          // Define el tema de la aplicación con la clase ThemeData.
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.red,
+          ), // Genera una paleta de colores a partir de un color base (Colors.red).
           useMaterial3: true,
         ),
-        home: const PokemonListView(),
+        home: Router(
+          routerDelegate: AppRouter(),
+          backButtonDispatcher: RootBackButtonDispatcher(),
+        ),
       ),
     );
   }
